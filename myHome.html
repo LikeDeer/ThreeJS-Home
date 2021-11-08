@@ -11,21 +11,21 @@
     <script>
         function init() {
 
-            //------------Scene---------------------------------------
+        //------------Scene---------------------------------------//
             var scene = new THREE.Scene();
 
-            //------------Renderer------------------------------------
+        //------------Renderer------------------------------------//
             var renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setClearColor(new THREE.Color(0x81F7F3));
             document.getElementById("webgl-output").appendChild(renderer.domElement);
 
-            //------------Camera (initialize)-------------------------
+        //------------Camera (initialize)-------------------------//
             var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
             camera.position.set(-30, 40, 30);
             camera.lookAt(scene.position);
 
-            //------------Camera Control (with Mouse)-----------------
+        //------------Camera Control (with Mouse)-----------------//
             var controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.rotateSpeed = 1.0;
             controls.zoomSpeed = 1.2;
@@ -37,20 +37,24 @@
                 requestAnimationFrame(animate);
 
                 renderer.render(scene, camera);
+
                 controls.update();
             }
 
-            //------------Window Resizing------------------------------
+        //------------Window Resizing-----------------------------//
             window.addEventListener( 'resize', onWindowResize, false );
 
-            function onWindowResize(){
-
+            function onWindowResize() {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
 
                 renderer.setSize( window.innerWidth, window.innerHeight );
             }
 
+        //------------Temp---------------------------------------//
+            var axes = new THREE.AxesHelper(20);
+            scene.add(axes);
+            // Red: X, Green: Y, Blue: Z
 
             var cubeGeometry = new THREE.BoxGeometry(5, 5, 5);
             var cubeMaterial = new THREE.MeshBasicMaterial({color:0xFF0000, wireframe:true});
@@ -58,7 +62,9 @@
             scene.add(cube);
 
 
-            //--------------Floor-----------------------------
+        //--------------Floor-------------------------------------//
+            
+
             animate();
         }   
 

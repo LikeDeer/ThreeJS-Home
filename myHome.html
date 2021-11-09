@@ -44,7 +44,7 @@
                 controls.update();
             }
 
-        //------------Camera Move (with KeyBoard)-----------------------//
+        //------------Camera Control (with KeyBoard)-----------------------//
 
             // function cameraPosition(event) {
             //     requestAnimationFrame(cameraPosition);
@@ -130,7 +130,8 @@
         //-------------Room1--------------------------------------//
             var room1 = new THREE.Group();
 
-            const GlobalWallHeight = 25;
+            const GlobalWallHeight = 35;
+
 
         // ------------Room1 - Walls -----------------------------//
             const room1WallGeo1 = new THREE.BoxGeometry(40, GlobalWallHeight, 3);
@@ -153,7 +154,7 @@
             room1Wall4.rotation.y = .5 * Math.PI;
 
             var room1WallEx = new THREE.Mesh(room1WallGeoEX, room1WallMat);
-            room1WallEx.position.set(17, 11.5, 10);
+            room1WallEx.position.set(17, 16.5, 10);
 
             room1.add(room1Wall1);
             room1.add(room1Wall2);
@@ -161,11 +162,12 @@
             room1.add(room1Wall4);
             room1.add(room1WallEx);
 
+
         //--------------Room1 - Bed-----------------------------------//
             const bedGeo = new THREE.BoxGeometry(30, 5, 15);
             const bedMat = new THREE.MeshPhongMaterial({color:0xFFFFFF});
             var bed = new THREE.Mesh(bedGeo, bedMat);
-            bed.position.set(32, -4, 41);
+            bed.position.set(32, -5, 41);
 
             const bedLegGeo = new THREE.BoxGeometry(2, 5, 2);
             const bedLegMat = new THREE.MeshPhongMaterial({color:0xB40404});
@@ -182,12 +184,16 @@
             bed.add(leg3);
             bed.add(leg4);
 
+
+        //-----------------Room1 - Bed - Pillow------------------------//
             const pillowGeo = new THREE.BoxGeometry(3, 0.5, 6.5);
             const pillowMat = new THREE.MeshPhongMaterial({color:0xBDBDBD});
             var pillow = new THREE.Mesh(pillowGeo, pillowMat);
             pillow.position.set(12, 3, 0);
             bed.add(pillow);
 
+
+        //-----------------Room1 - Bed - Blanket-----------------------//
             const blanketGeo = new THREE.PlaneGeometry(24, 15);
             const blanketMat = new THREE.MeshBasicMaterial({color:0xFE9A2E});
             var blanket = new THREE.Mesh(blanketGeo, blanketMat);
@@ -195,12 +201,41 @@
             blanket.rotation.x = -.5 * Math.PI;
             bed.add(blanket);
 
+
             room1.add(bed);
 
+
         //---------------Room1 - Desk--------------------------------//
+            const deskGeo = new THREE.BoxGeometry(14, 2, 24);
+            const deskLegGeo = new THREE.BoxGeometry(2, 14, 2);
+            const deskDrawerGeo = new THREE.BoxGeometry(14, 14, 6);
+            const deskMat = new THREE.MeshPhongMaterial({color:0x868A08});
+            var desk = new THREE.Mesh(deskGeo, deskMat);
+            var deskLeg1 = new THREE.Mesh(deskLegGeo, deskMat);
+            var deskLeg2 = new THREE.Mesh(deskLegGeo, deskMat);
+            var deskDrawer = new THREE.Mesh(deskDrawerGeo, deskMat);
+            desk.position.set(43, 3, 22);
+            deskLeg1.position.set(6, -7, -9);
+            deskLeg2.position.set(-6, -7, -9);
+            deskDrawer.position.set(0, -7, 8);
+            desk.add(deskLeg1);
+            desk.add(deskLeg2);
+            desk.add(deskDrawer);
+
+        //---------------Room1 - Desk - Lamp-------------------------//
+            const lampCylinGeo = new THREE.CylinderGeometry()
+        
+            const points = [];
+            for (let i = 0; i < 10; ++i) {
+                points.push(new THREE.Vector2(Math.sin(i * 0.2) * 3 + 3, (i - 5) * .8));
+            }
+            const lampCoverGeo = new THREE.LatheGeometry(points, 26);
+            const lampCoverMat = new THREE.MeshLambertMaterial({color:0xF5F6CE});
+            var lampCover = new THREE.Mesh(lampCoverGeo, lampCoverMat);
             
 
 
+            room1.add(desk);
 
 
 

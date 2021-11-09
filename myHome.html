@@ -106,7 +106,7 @@
             }
 
 
-        //------------Temp---------------------------------------//
+        //------------Fundamentals---------------------------------------//
 
             var axes = new THREE.AxesHelper(20);
             scene.add(axes);
@@ -124,6 +124,9 @@
             scene.add(solarLight);
 
             const GlobalWallHeight = 35;
+
+            var clock = new THREE.Clock();
+            var delta = 0
 
 
         //--------------Floor-------------------------------------//
@@ -158,7 +161,7 @@
 
             
         //-------------Room1--------------------------------------//
-        
+
             var room1 = new THREE.Group();
 
 
@@ -196,6 +199,24 @@
             room1Walls.add(room1WallEx);
 
             room1.add(room1Walls);
+
+
+        //--------------Room1 - Door----------------------------------//
+
+            const doorGeo = new THREE.BoxGeometry(15, 28, 1.5);
+            const doorMat = new THREE.MeshLambertMaterial({color: 0x3ADF00});
+            var room1Door = new THREE.Mesh(doorGeo, doorMat);
+            room1Door.rotation.y = Math.PI / -2.8;
+            room1Door.position.set(15, 4, 17);
+
+            const doorknGeo = new THREE.CylinderGeometry(0.5, 0.5, 2.8, 20);
+            const doorknMat = new THREE.MeshPhongMaterial({color: 0xE6E6E6});
+            var room1doorkn = new THREE.Mesh(doorknGeo, doorknMat);
+            room1doorkn.position.set(6, 0, 0);
+            room1doorkn.rotation.x = Math.PI / 2;
+            room1Door.add(room1doorkn);
+
+            room1.add(room1Door);
 
 
         //--------------Room1 - Bed-----------------------------------//
@@ -351,13 +372,102 @@
             scene.add(room2);
 
 
-        //-------------Room2 - Cat-----------------------------//
+        //-------------Room2 - Tower-------------------//
+            
+
+        //-------------LivingRoom - Sofa---------------//
+        
+        
+        //-------------LivingRoom - Wall light---------//
 
 
+        //-------------Cat-----------------------------//
+            
+            var cat = new THREE.Group();
 
-            renderer.render(scene, camera);
+            const catHeadGeo = new THREE.DodecahedronGeometry(2, 2);
+            const catBodyGeo = new THREE.BoxGeometry(3, 3, 7);
+            class CustomSinCurve extends THREE.Curve {
+                constructor(scale) {
+                    super();
+                    this.scale = scale;
+                }
+                getPoint(t) {
+                    const tx = t * 3 - 1.5;
+                    const ty = Math.sin(2 * Math.PI * t);
+                    const tz = 0;
+                    return new THREE.Vector3(tx, ty, tz).multiplyScalar(this.scale);
+                }
+            }
+            const path = new CustomSinCurve(2);
+            const tubularSegments = 20;  
+            const radius = 1;  
+            const radialSegments = 8;  
+            const closed = false;  
+            const catTailGeo = new THREE.TubeGeometry(
+                path, tubularSegments, radius, radialSegments, closed);
+            const catLegGeo = new THREE.BoxGeometry(0.5, 3, 0.5);
+            const catEarGeo = new THREE.ConeGeometry(1, 1.5, 50);
+            const catNoseGeo = new THREE.DodecahedronGeometry(0.5, 3);
+            const catMaterial = new THREE.MeshLambertMaterial({color:0x2E2E2E, side: 2});
+            const catNoseMaterial = new THREE.MeshPhongMaterial({color:0xFF0000});
+
+            var catHead = new THREE.Mesh(catHeadGeo, catMaterial);
+            var catBody = new THREE.Mesh(catBodyGeo, catMaterial);
+            var catTail = new THREE.Mesh(catTailGeo, catMaterial);
+            var catLeg1 = new THREE.Mesh(catLegGeo, catMaterial);
+            var catLeg2= new THREE.Mesh(catLegGeo, catMaterial);
+            var catLeg3 = new THREE.Mesh(catLegGeo, catMaterial);
+            var catLeg4 = new THREE.Mesh(catLegGeo, catMaterial);
+            var catEar1 = new THREE.Mesh(catEarGeo, catMaterial);
+            var catEar2 = new THREE.Mesh(catEarGeo, catMaterial);
+            var catNose = new THREE.Mesh(catNoseGeo, catNoseMaterial);
+
+            catBody.add(catHead);
+            catBody.add(catTail);
+            catBody.add(catLeg1);
+            catBody.add(catLeg2);
+            catBody.add(catLeg3);
+            catBody.add(catLeg4);
+            catHead.add(catEar1);
+            catHead.add(catEar2);
+            catHead.add(catNose);
+
+            cat.position.set(10, 0, -25);
+
+            catBody.rotation.y = Math.PI * .5;
+            catHead.position.set(4, 2, 0);
+            catTail.rotation.y = Math.PI * -.5;
+            catTail.rotation.z = Math.PI / -4;
+            catTail.position.set(0, 3, -4);
+            catLeg1.position.set(1, -2.7, -3.3);
+            catLeg2.position.set(-1, -2.7, -3.3);
+            catLeg3.position.set(1, -2.7, 3.3);
+            catLeg4.position.set(-1, -2.7, 3.3);
+            catEar1.position.set(0, 2, 1);
+            catEar1.rotation.x = Math.PI / 6;
+            catEar2.position.set(0, 2, -1);
+            catEar2.rotation.x = Math.PI / -6;
+            catNose.position.set(1.4, -0.8, 0);
+            
+            cat.position.y = -6;
+
+            cat.add(catBody);
+            cat.add(catHead);
+
+            scene.add(cat);
+            
+            delta = clock.getDelta();
+            
+            function catAnimation(delta) {
+                requestAnimationFrame(catAnimation);
+                cat.position.x += Math.sin(delta * Math.PI / 200);
+                cat.rotation.y += Math.PI / 20;
+                renderer.render(scene, camera);
+            }
 
             animate();
+            catAnimation(delta);
         }   
 
         window.onload = init();

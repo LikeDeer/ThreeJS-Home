@@ -12,10 +12,12 @@
         function init() {
 
         //------------Scene---------------------------------------//
+
             var scene = new THREE.Scene();
 
 
         //------------Renderer------------------------------------//
+
             var renderer = new THREE.WebGLRenderer();
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setClearColor(new THREE.Color(0x81F7F3));
@@ -23,12 +25,14 @@
 
 
         //------------Camera (initialize)-------------------------//
+
             var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
             camera.position.set(-30, 40, 30);   // 100 0 0
             camera.lookAt(scene.position);
 
 
         //------------Camera Orbit Control (with Mouse)-----------------//
+
             var controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.rotateSpeed = 1.0;
             controls.zoomSpeed = 1.2;
@@ -91,6 +95,7 @@
 
 
         //------------Window Resizing-----------------------------//
+
             window.addEventListener( 'resize', onWindowResize, false );
 
             function onWindowResize() {
@@ -102,6 +107,7 @@
 
 
         //------------Temp---------------------------------------//
+
             var axes = new THREE.AxesHelper(20);
             scene.add(axes);
             // Red: X, Green: Y, Blue: Z
@@ -117,8 +123,11 @@
             var solarLight = new THREE.HemisphereLight(skyColor, groundColor, solarintensity);
             scene.add(solarLight);
 
+            const GlobalWallHeight = 35;
+
 
         //--------------Floor-------------------------------------//
+
             const floorWidth = 100
             const floorHeight = 100
             const floorGeometry = new THREE.PlaneGeometry(floorWidth, floorHeight);
@@ -129,13 +138,32 @@
             scene.add(floor);
 
             
-        //-------------Room1--------------------------------------//
-            var room1 = new THREE.Group();
+        //-------------Edges--------------------------------------//
+        
+            const edgeGeometry1 = new THREE.PlaneGeometry(43, GlobalWallHeight);
+            const edgeGeometry2 = new THREE.PlaneGeometry(60, GlobalWallHeight);
+            const edgeMaterial = new THREE.MeshPhongMaterial({color:0xFFFFFF, side: 2});
 
-            const GlobalWallHeight = 35;
+            var edge1 = new THREE.Mesh(edgeGeometry1, edgeMaterial);
+            var edge2 = new THREE.Mesh(edgeGeometry2, edgeMaterial);
+            edge1.position.set(50, 7, -28.5);
+            edge2.position.set(20, 7, -50);
+            edge1.rotation.y = .5 * Math.PI;
+
+            var edges = new THREE.Group();
+            edges.add(edge1);
+            edges.add(edge2);
+
+            scene.add(edges);
+
+            
+        //-------------Room1--------------------------------------//
+        
+            var room1 = new THREE.Group();
 
 
         // ------------Room1 - Walls -----------------------------//
+
             const room1WallGeo1 = new THREE.BoxGeometry(40, GlobalWallHeight, 3);
             const room1WallGeo2 = new THREE.BoxGeometry(25, GlobalWallHeight, 3);
             const room1WallGeoEX = new THREE.BoxGeometry(15, 6, 3);
@@ -171,6 +199,7 @@
 
 
         //--------------Room1 - Bed-----------------------------------//
+
             const bedGeo = new THREE.BoxGeometry(30, 5, 15);
             const bedMat = new THREE.MeshPhongMaterial({color:0xFFFFFF});
             var bed = new THREE.Mesh(bedGeo, bedMat);
@@ -193,6 +222,7 @@
 
 
         //-----------------Room1 - Bed - Pillow------------------------//
+
             const pillowGeo = new THREE.BoxGeometry(3, 0.5, 6.5);
             const pillowMat = new THREE.MeshPhongMaterial({color:0xBDBDBD});
             var pillow = new THREE.Mesh(pillowGeo, pillowMat);
@@ -201,6 +231,7 @@
 
 
         //-----------------Room1 - Bed - Blanket-----------------------//
+
             const blanketGeo = new THREE.PlaneGeometry(24, 15);
             const blanketMat = new THREE.MeshBasicMaterial({color:0xFE9A2E});
             var blanket = new THREE.Mesh(blanketGeo, blanketMat);
@@ -213,6 +244,7 @@
 
 
         //---------------Room1 - Desk--------------------------------//
+
             const deskGeo = new THREE.BoxGeometry(14, 2, 24);
             const deskLegGeo = new THREE.BoxGeometry(2, 14, 2);
             const deskDrawerGeo = new THREE.BoxGeometry(14, 14, 6);
@@ -231,6 +263,7 @@
 
 
         //---------------Room1 - Desk - Lamp-------------------------//
+
             const lampCylinGeo = new THREE.CylinderGeometry(1, 1, 5, 12);
             const lampCylinMat = new THREE.MeshPhongMaterial({color:0xF5A9A9});
             var lampCylin = new THREE.Mesh(lampCylinGeo, lampCylinMat);
@@ -248,7 +281,7 @@
                 points.push(new THREE.Vector2(Math.sin(i * 0.2) * 3 + 3, (i - 5) * .8));
             }
             const lampCoverGeo = new THREE.LatheGeometry(points, 26);
-            const lampCoverMat = new THREE.MeshLambertMaterial({color:0xF5F6CE, opacity:0.9, transparent: true});
+            const lampCoverMat = new THREE.MeshLambertMaterial({color:0xF5F6CE, opacity:0.9, transparent: true, side: 2});
             var lampCover = new THREE.Mesh(lampCoverGeo, lampCoverMat);
             lampCover.rotation.z = Math.PI;
             lampCylin.add(lampCover);
@@ -265,17 +298,61 @@
 
         //---------------Room1 - Desk - Laptop----------------------//
 
+            
 
 
-
-
-        
             room1.add(desk);
 
 
             scene.add(room1);
 
         //---------------Room2--------------------------------------//
+
+            var room2 = new THREE.Group();
+
+
+        //---------------Room2 - Walls------------------------------//
+
+            const room2WallGeo1 = new THREE.BoxGeometry(65, GlobalWallHeight, 3);
+            const room2WallGeo2= new THREE.BoxGeometry(40, GlobalWallHeight, 3);
+            const room2WallGeo3 = new THREE.BoxGeometry(30, GlobalWallHeight, 3);
+            const room2WallGeo4 = new THREE.BoxGeometry(10, GlobalWallHeight, 3);
+            const room2WallGeoEX = new THREE.BoxGeometry(25, 6, 3);
+            const room2WallMat = new THREE.MeshLambertMaterial({color:0xF6CECE});
+
+            var room2Wall1 = new THREE.Mesh(room2WallGeo1, room2WallMat);
+            var room2Wall2 = new THREE.Mesh(room2WallGeo2, room2WallMat);
+            var room2Wall3 = new THREE.Mesh(room2WallGeo3, room2WallMat);
+            var room2Wall4 = new THREE.Mesh(room2WallGeo4, room2WallMat);
+            var room2Wall5 = new THREE.Mesh(room2WallGeo2, room2WallMat);
+            var room2WallEX = new THREE.Mesh(room2WallGeoEX, room2WallMat);
+
+            room2Wall1.position.set(-50, 7, -17.5);
+            room2Wall1.rotation.y = .5 * Math.PI;
+            room2Wall2.position.set(-30, 7, 15);
+            room2Wall3.position.set(-10, 7, 0)
+            room2Wall3.rotation.y = .5 * Math.PI;
+            room2Wall4.position.set(-10, 7, -45);
+            room2Wall4.rotation.y = .5 * Math.PI;
+            room2Wall5.position.set(-30, 7, -50);
+            room2WallEX.position.set(-10, 21.5, -27.5);
+            room2WallEX.rotation.y = .5 * Math.PI;
+
+            var room2Walls = new THREE.Group();
+            room2Walls.add(room2Wall1);
+            room2Walls.add(room2Wall2);
+            room2Walls.add(room2Wall3);
+            room2Walls.add(room2Wall4);
+            room2Walls.add(room2Wall5);
+            room2Walls.add(room2WallEX);
+
+            room2.add(room2Walls);
+
+            scene.add(room2);
+
+
+        //-------------Room2 - Cat-----------------------------//
+
 
 
             renderer.render(scene, camera);

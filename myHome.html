@@ -27,7 +27,7 @@
         //------------Camera (initialize)-------------------------//
 
             var camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 1000);
-            camera.position.set(-30, 40, 30);   // 100 0 0
+            camera.position.set(100, 30, 0);   // 100 0 0
             camera.lookAt(scene.position);
 
 
@@ -80,10 +80,10 @@
             //         camera.rotation.y -= THREE.Math.degToRad(4);
             //     }
             //     if (event.keyCode == 87) {
-            //         camera.rotation.x -= THREE.Math.degToRad(4);
+            //         camera.position.y += 1;
             //     }
             //     if (event.keyCode == 83) {
-            //         camera.rotation.x += THREE.Math.degToRad(4);
+            //         camera.position.y -= 1;
             //     }
 
             //     renderer.render(scene, camera);
@@ -106,16 +106,16 @@
             }
 
 
-        //------------Fundamentals---------------------------------------//
+        //------------Miscellaneous---------------------------------------//
 
-            var axes = new THREE.AxesHelper(20);
-            scene.add(axes);
+            // var axes = new THREE.AxesHelper(20);
+            // scene.add(axes);
             // Red: X, Green: Y, Blue: Z
 
-            var cubeGeometry = new THREE.BoxGeometry(5, 5, 5);
-            var cubeMaterial = new THREE.MeshBasicMaterial({color:0xFF0000, wireframe:true});
-            var cube = new THREE.Mesh(cubeGeometry,cubeMaterial);
-            scene.add(cube);
+            // var cubeGeometry = new THREE.BoxGeometry(5, 5, 5);
+            // var cubeMaterial = new THREE.MeshBasicMaterial({color:0xFF0000, wireframe:true});
+            // var cube = new THREE.Mesh(cubeGeometry,cubeMaterial);
+            // scene.add(cube);
 
             const skyColor = 0xB1E1FF;
             const groundColor = 0xB97A20;
@@ -315,11 +315,6 @@
 
             var lampLight = new THREE.SpotLight(0xFFFFFF, 1, 180, Math.PI);
             lampBulb.add(lampLight);
-        
-
-        //---------------Room1 - Desk - Laptop----------------------//
-
-            
 
 
             room1.add(desk);
@@ -369,17 +364,70 @@
 
             room2.add(room2Walls);
 
-            scene.add(room2);
-
 
         //-------------Room2 - Tower-------------------//
             
+            var room2Tower = new THREE.Group();
 
-        //-------------LivingRoom - Sofa---------------//
+            const room2TowerGeo = new THREE.CylinderGeometry(3, 7, 20, 15);
+            const room2TowerMat = new THREE.MeshPhongMaterial({color:0xCEE3F6});
+            const room2TowerArmGeo = new THREE.TorusGeometry(5, 1, 8, 24);
+            const room2TowerArmMat = new THREE.MeshPhongMaterial({color:0xCEF6F5});
+            const room2TowerHLGeo = new THREE.TetrahedronGeometry(2, 2);
+            const room2TowerHLMat = new THREE.MeshPhongMaterial({color:0xFFFFFF});
+
+            var room2TowerBody = new THREE.Mesh(room2TowerGeo, room2TowerMat);
+            room2Tower.add(room2TowerBody);
+
+            var room2TowerArm = new THREE.Mesh(room2TowerArmGeo, room2TowerArmMat);
+            room2TowerArm.rotation.y = Math.PI * .5;
+            room2TowerArm.position.set(0, 14, 0);
+            room2Tower.add(room2TowerArm);
+
+            var room2TowerHL = new THREE.Mesh(room2TowerHLGeo, room2TowerHLMat);
+            room2TowerHL.position.set(0, 14, 0);
+
+            function HLAnimation() {
+                requestAnimationFrame(HLAnimation);
+                room2TowerHL.rotation.y += 0.02;
+                renderer.render(scene, camera);
+            }
+
+            room2Tower.add(room2TowerHL);
+
+            var TowerSpotLight = new THREE.SpotLight(0xFFFFFF, 1, 180, Math.PI / 3)
+            room2TowerHL.add(TowerSpotLight);
+            
+            room2Tower.position.set(-40, 0, -30);
+
+            room2.add(room2Tower);
+
+            scene.add(room2);
+
+        //-------------LivingRoom-----------------------//
+            
+            var livingRoom = new THREE.Group();
+
+        //-------------LivingRoom - Carpet---------------//
         
-        
+
+            const carpetGeo = new THREE.PlaneGeometry(30, 30);
+            const carpetMat = new THREE.MeshBasicMaterial({color:0xAAFF00});
+            // const carpetTexture = new THREE.TextureLoader().load("carpetTexture.jpg");
+            // carpetTexture.wrapS = THREE.RepeatWrapping;
+            // carpetTexture.wrapT = THREE.RepeatWrapping;
+            // carpetTexture.repeat.set(4, 4);
+            // const carpetMat = new THREE.MeshBasicMaterial({map:carpetTexture});
+            var carpet = new THREE.Mesh(carpetGeo, carpetMat);
+            carpet.position.set(25, -9.9, -30);
+            carpet.rotation.x = Math.PI * -.5;
+            livingRoom.add(carpet);
+
         //-------------LivingRoom - Wall light---------//
 
+            // const wallLightGeo = new THREE.
+
+            scene.add(livingRoom);
 
         //-------------Cat-----------------------------//
             
@@ -468,6 +516,7 @@
 
             animate();
             catAnimation(delta);
+            HLAnimation();
         }   
 
         window.onload = init();

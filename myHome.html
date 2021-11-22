@@ -145,7 +145,7 @@
         
             const edgeGeometry1 = new THREE.PlaneGeometry(43, GlobalWallHeight);
             const edgeGeometry2 = new THREE.PlaneGeometry(60, GlobalWallHeight);
-            const edgeMaterial = new THREE.MeshPhongMaterial({color:0xFFFFFF, side: 2});
+            const edgeMaterial = new THREE.MeshLambertMaterial({color:0x81DAF5, side: 2});
 
             var edge1 = new THREE.Mesh(edgeGeometry1, edgeMaterial);
             var edge2 = new THREE.Mesh(edgeGeometry2, edgeMaterial);
@@ -497,7 +497,7 @@
             catEar2.position.set(0, 2, -1);
             catEar2.rotation.x = Math.PI / -6;
             catNose.position.set(1.4, -0.8, 0);
-            
+
             cat.position.y = -6;
 
             cat.add(catBody);
@@ -517,9 +517,26 @@
             animate();
             catAnimation(delta);
             HLAnimation();
+
+            
+        // ************ After 1st assignment **************
+
+        // ------------- living room - coffee table ---------------
+
+        const coffeeTableGeo = new THREE.BoxGeometry(20, 2, 8);
+        const coffeeTableMat = new THREE.MeshPhongMaterial({color : 0xF2F2F2});
+        var coffeeTable = new THREE.Mesh(coffeeTableGeo, coffeeTableMat);
+        coffeeTable.position.set(27, -6, -30);
+        coffeeTable.rotation.y = Math.PI / 2;
+
+        const coffeeTableLegGeo = new THREE.
+
+
+        scene.add(coffeeTable);
         }   
 
         window.onload = init();
+
     </script>
 </body>
 </html>

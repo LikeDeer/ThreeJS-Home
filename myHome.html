@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <script src="node_modules/three/build/three.js"></script>
     <script src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="node_modules/three/examples/js/lights/RectAreaLightUniformsLib.js"></script>
+    <script src="node_modules/three/examples/js/helpers/RectAreaLightHelper.js"></script>
     <title>Junho's Living Area</title>
 </head>
 <body>
     <div id="webgl-output"></div>
     <script>
-        function init() {
+        function main() {
+
 
         //------------Scene---------------------------------------//
 
@@ -505,7 +508,7 @@
 
             scene.add(cat);
             
-            delta = clock.getDelta();
+            delta = clock.getElapsedTime();
             
             function catAnimation(delta) {
                 requestAnimationFrame(catAnimation);
@@ -519,23 +522,114 @@
             HLAnimation();
 
             
-        // ************ After 1st assignment **************
+        // ******************* After 1st assignment ***********************
 
         // ------------- living room - coffee table ---------------
 
-        const coffeeTableGeo = new THREE.BoxGeometry(20, 2, 8);
-        const coffeeTableMat = new THREE.MeshPhongMaterial({color : 0xF2F2F2});
-        var coffeeTable = new THREE.Mesh(coffeeTableGeo, coffeeTableMat);
-        coffeeTable.position.set(27, -6, -30);
-        coffeeTable.rotation.y = Math.PI / 2;
-
-        const coffeeTableLegGeo = new THREE.
+            const coffeeTableGeo = new THREE.BoxGeometry(20, 2, 8);
+            const coffeeTableMat = new THREE.MeshPhongMaterial({color : 0xF2F2F2});
+            var coffeeTable = new THREE.Mesh(coffeeTableGeo, coffeeTableMat);
+            coffeeTable.position.set(27, -6, -30);
+            coffeeTable.rotation.y = Math.PI / 2;
 
 
-        scene.add(coffeeTable);
+            scene.add(coffeeTable);
+
+        
+        // -------------- living room - coffee table - laptop -----------
+
+            var laptop = new THREE.Group();
+            coffeeTable.add(laptop);
+
+            const laptopTopGeo = new THREE.BoxGeometry(6, 0.5, 5);
+            const laptopBotGeo = new THREE.BoxGeometry(6, 0.4, 5);
+            const laptopMat = new THREE.MeshPhongMaterial({color:0x424242});
+            var laptopTop = new THREE.Mesh(laptopTopGeo, laptopMat);
+            var laptopBot = new THREE.Mesh(laptopBotGeo, laptopMat);
+
+            laptop.position.y = 1.3;
+            laptopTop.rotation.x = Math.PI * 1.4;
+            laptopTop.position.y = 2.4;
+            laptopTop.position.z = -2.5
+
+            laptop.add(laptopTop);
+            laptop.add(laptopBot);
+
+            THREE.RectAreaLightUniformsLib.init();
+            var laptopLight = new THREE.RectAreaLight(0xFFFFFF, 0.8, 5.6, 4.6);
+            laptopLight.rotation.x = Math.PI * -0.5;
+            laptopLight.position.set(0, -0.251, 0);
+            laptopTop.add(laptopLight);
+
+            var laptopLightHelper = new THREE.RectAreaLightHelper(laptopLight);
+            laptopLight.add(laptopLightHelper);
+
+
+        // ---------------- living room - coffee table - coffee cup ----------------
+            
+            var coffeeCup = new THREE.Group();
+
+            const points1 = [];
+            for (let i = 0; i < 10; ++i) {
+                points1.push(new THREE.Vector2(Math.sin(i * 0.2) * 3 + 3, (i - 5) * .8));
+            }
+            const coffeeCupBodyGeo = new THREE.LatheGeometry(points1, 30);
+            const coffeeCupBodyMat = new THREE.MeshPhongMaterial({color:0xDF0174, side:2});
+            var coffeeCupBody = new THREE.Mesh(coffeeCupBodyGeo, coffeeCupBodyMat);
+            coffeeCup.add(coffeeCupBody);
+
+            const coffeeCupHandleGeo = new THREE.TorusGeometry(3, 1, 30, 50);
+            const coffeeCupHandleMat = new THREE.MeshPhongMaterial({color:0xDF0174});
+            var coffeeCupHandle = new THREE.Mesh(coffeeCupHandleGeo, coffeeCupHandleMat);
+            coffeeCupBody.add(coffeeCupHandle);
+
+            const coffeeGeo = new THREE.CircleGeometry(5.8, 30);
+            const coffeeMat = new THREE.MeshPhongMaterial({color:0x610B21});
+            var coffee = new THREE.Mesh(coffeeGeo, coffeeMat);
+            coffeeCupBody.add(coffee);
+
+            coffee.rotation.x = Math.PI / -2;
+            coffee.position.y = 2;
+            coffeeCupHandle.scale.set(0.7, 0.7, 0.7);
+            coffeeCupHandle.position.x = 5;
+            coffeeCupHandle.position.y = -1;
+
+            coffeeCup.scale.set(0.2, 0.2, 0.2);
+            coffeeCup.position.set(7, 1.8, 1);
+
+
+            coffeeTable.add(coffeeCup);
+
+
+        // ----------------- living room - Christmas tree -----------------
+            
+            var christmasTree = new THREE.Group();
+
+            const treeGeo1 = new THREE.ConeGeometry();
+            const treeGeo2 = new THREE.ConeGeometry();
+            const treeGeo3 = new THREE.ConeGeometry();
+            const treeGeo4 = new THREE.CylinderGeometry();
+            const treeGeo5 = new THREE.CylinderGeometry();
+            const treeMat1 = new THREE.MeshPhongMaterial({color:});
+            const treeMat2 = new THREE.MeshPhongMaterial({color:});
+            var tree1 = new THREE.Mesh();
+            var tree2 = new THREE.Mesh();
+            var tree3 = new THREE.Mesh();
+            var tree4 = new THREE.Mesh();
+            var tree5 = new THREE.Mesh();
+
+            tree1.add(tree2);
+            tree2.add(tree3);
+            tree3.add(tree4);
+            tree4.add(tree5);
+
+            christmasTree.add(tree1);
+
+            scene.add(christmasTree);
+
         }   
 
-        window.onload = init();
+        window.onload = main();
 
     </script>
 </body>

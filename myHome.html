@@ -207,7 +207,7 @@
         //--------------Room1 - Door----------------------------------//
 
             const doorGeo = new THREE.BoxGeometry(15, 28, 1.5);
-            const doorMat = new THREE.MeshLambertMaterial({color: 0x3ADF00});
+            const doorMat = new THREE.MeshPhongMaterial({color: 0x3ADF00});
             var room1Door = new THREE.Mesh(doorGeo, doorMat);
             room1Door.rotation.y = Math.PI / -2.8;
             room1Door.position.set(15, 4, 17);
@@ -484,7 +484,7 @@
             catHead.add(catEar2);
             catHead.add(catNose);
 
-            cat.position.set(10, 0, -25);
+            cat.position.set(5, 0, -25);
 
             catBody.rotation.y = Math.PI * .5;
             catHead.position.set(4, 2, 0);
@@ -522,7 +522,7 @@
             HLAnimation();
 
             
-        // ******************* After 1st assignment ***********************
+        // ***************************** 2st assignment *****************************
 
         // ------------- living room - coffee table ---------------
 
@@ -605,27 +605,162 @@
             
             var christmasTree = new THREE.Group();
 
-            const treeGeo1 = new THREE.ConeGeometry();
-            const treeGeo2 = new THREE.ConeGeometry();
-            const treeGeo3 = new THREE.ConeGeometry();
-            const treeGeo4 = new THREE.CylinderGeometry();
-            const treeGeo5 = new THREE.CylinderGeometry();
-            const treeMat1 = new THREE.MeshPhongMaterial({color:});
-            const treeMat2 = new THREE.MeshPhongMaterial({color:});
-            var tree1 = new THREE.Mesh();
-            var tree2 = new THREE.Mesh();
-            var tree3 = new THREE.Mesh();
-            var tree4 = new THREE.Mesh();
-            var tree5 = new THREE.Mesh();
+            const treeGeo1 = new THREE.ConeGeometry(4, 4, 10);
+            const treeGeo2 = new THREE.ConeGeometry(5, 5, 10);
+            const treeGeo3 = new THREE.ConeGeometry(6, 7, 10);
+            const treeGeo4 = new THREE.CylinderGeometry(1, 2, 7, 15);
+            const treeGeo5 = new THREE.CylinderGeometry(5, 5, 1, 30);
+            const treeMat1 = new THREE.MeshPhongMaterial({color:0x088A68});
+            const treeMat2 = new THREE.MeshPhongMaterial({color:0x8A0808});
+            var tree1 = new THREE.Mesh(treeGeo1, treeMat1);
+            var tree2 = new THREE.Mesh(treeGeo2, treeMat1);
+            var tree3 = new THREE.Mesh(treeGeo3, treeMat1);
+            var tree4 = new THREE.Mesh(treeGeo4, treeMat2);
+            var tree5 = new THREE.Mesh(treeGeo5, treeMat2);
 
             tree1.add(tree2);
             tree2.add(tree3);
             tree3.add(tree4);
             tree4.add(tree5);
 
+            tree1.position.set(0, 10, 0);
+            tree2.position.set(0, -4, 0);
+            tree3.position.set(0, -5, 0);
+            tree4.position.set(0, -6, 0);
+            tree5.position.set(0, -3, 0);
+
             christmasTree.add(tree1);
 
+            christmasTree.position.set(0, -1.8, -40);
+
+            const treeLightGeo = new THREE.SphereGeometry(1, 28, 28);
+            const treeLightMatYlw = new THREE.MeshPhongMaterial({color:0xFFFF00});
+            const treeLightMatRed = new THREE.MeshPhongMaterial({color:0xFF0000});
+            const treeLightMatGrn = new THREE.MeshPhongMaterial({color:0x00FF00});
+            var treeLight1 = new THREE.Mesh(treeLightGeo, treeLightMatGrn);
+            var treeLight2 = new THREE.Mesh(treeLightGeo, treeLightMatYlw);
+            var treeLight3 = new THREE.Mesh(treeLightGeo, treeLightMatYlw);
+            var treeLight4 = new THREE.Mesh(treeLightGeo, treeLightMatRed);
+            var treeLight5 = new THREE.Mesh(treeLightGeo, treeLightMatRed);
+
+            var treeYlwLight = new THREE.PointLight(0xFFFF00, 1, 6);
+            var treeRedLight = new THREE.PointLight(0xFF0000, 1, 6);
+            var treeGrnLight = new THREE.PointLight(0x00FF00, 1, 6);
+
+            treeLight1.add(treeGrnLight);
+            treeLight2.add(treeYlwLight);
+            treeLight3.add(treeYlwLight);
+            treeLight4.add(treeRedLight);
+            treeLight5.add(treeRedLight);
+
+            tree1.add(treeLight2);
+            tree2.add(treeLight3);
+            tree2.add(treeLight4);
+            tree3.add(treeLight1);
+            tree3.add(treeLight5);
+
+            treeLight2.position.set(0, 2.7, 0);
+            treeLight3.position.set(2.5 * Math.cos(Math.PI * 2 / 3) + 1, 0, 2.5 * Math.sin(Math.PI * 2 / 3) + 1);
+            treeLight4.position.set(-2.5 * Math.cos(Math.PI * 2 / 3) + 2, -1, -2.5 * Math.sin(Math.PI * 2 / 3) + 2);
+            treeLight1.position.set(-3 * Math.cos(Math.PI * 2 / 3) + 2, 0, -3 * Math.sin(Math.PI * 2 / 3) + 1);
+            treeLight5.position.set(3 * Math.cos(Math.PI * 2 / 3), -2, 3 * Math.sin(Math.PI * 2 / 3) + 2.5);
+
             scene.add(christmasTree);
+
+
+        // ------------------- living Room - Living Room - edge - wallLight ---------------------------
+
+            const wallLightGeo = new THREE.BoxGeometry(7, 4, 1);
+            const wallLightMat = new THREE.MeshPhongMaterial({color:0x0000FF});
+            var wallLight = new THREE.Mesh(wallLightGeo, wallLightMat);
+            wallLight.position.set(8, 10, -0.51);
+
+            const wallLightEdgeGeo = new THREE.BoxGeometry(2, 4.4, 1.5);
+            const wallLightEdgeMat = new THREE.MeshPhongMaterial({color:0xFAAC58});
+            var wallLightEdge1 = new THREE.Mesh(wallLightEdgeGeo, wallLightEdgeMat);
+            var wallLightEdge2 = new THREE.Mesh(wallLightEdgeGeo, wallLightEdgeMat);
+            wallLight.add(wallLightEdge1);
+            wallLight.add(wallLightEdge2);
+
+            wallLightEdge1.position.x = 3;
+            wallLightEdge2.position.x = -3;
+            wallLightEdge1.position.z = -0.251;
+            wallLightEdge2.position.z = -0.251;
+
+            var wallLight1 = wallLight.clone();
+            
+            wallLight1.position.x = -10;
+
+            var wallSpotLight = new THREE.SpotLight(0x0000FF, 0.6);
+            wallSpotLight.target.position.set(0, -7, 0);
+
+            wallLight.add(wallSpotLight);
+            wallLight1.add(wallSpotLight);
+
+
+            edge1.add(wallLight);
+            edge1.add(wallLight1);
+
+        
+        // ----------------------------------- Sun -----------------------------------------
+
+            const sunGeo = new THREE.SphereGeometry(10, 30);
+            const sunMat = new THREE.MeshToonMaterial({color:0xFFFFFF, emissive:0xFFFF00, emissiveIntensity:10});
+            var sun = new THREE.Mesh(sunGeo, sunMat);
+
+            const r = 100;
+            sun.position.set(0, r, 0);
+
+            scene.add(sun);
+            
+            // function sunAnimation() {
+            //     requestAnimationFrame(sunAnimation);
+            //     sun.position.y -= r * Math.sin(Math.PI * 0.05);
+            //     sun.position.z -= r * Math.cos(Math.PI * 0.05);
+
+            //     renderer.render(scene, camera);
+            // }
+
+            // sunAnimation();
+
+        
+        // ---------------------------------- Moon -------------------------------------------
+
+            const moonGeo = new THREE.SphereGeometry(5, 30);
+            const moonMat = new THREE.MeshPhongMaterial({color:0xBDBDBD, shininess:10});
+            var moon = new THREE.Mesh(moonGeo, moonMat);
+
+            moon.position.set(0, -r + 70, 0);
+
+            scene.add(moon);        // temporarily positioning near the room.
+
+            var moonSpotLight = new THREE.SpotLight(0x7401DF, 0.5);
+            moon.add(moonSpotLight);
+
+            moonSpotLight.target.position.set(0, 0, 0);
+
+        
+        // -------------------------------- Directional Light ---------------------------------
+
+            var directionalLight = new THREE.DirectionalLight(0xFFFFFF, 0.5);
+            directionalLight.position.set(0, r, 0);
+            directionalLight.target.position.set(0, 0, 0);
+            scene.add(directionalLight);
+            scene.add(directionalLight.target);
+
+            // function directionalAnimation() {
+            //     requestAnimationFrame(directionalAnimation);
+
+            //     directionalLight.position.y -= r * Math.sin(Math.PI * 0.05);
+            //     directionalLight.position.z -= r * Math.cos(Math.PI * 0.05);
+            //     directionalLight.target.position.set(0, 0, 0);
+
+            //     renderer.render(scene, camera);
+            // }
+
+            // directionalAnimation();
+
+        // --------------------------- 
 
         }   
 

@@ -6,11 +6,25 @@
     <script src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
     <script src="node_modules/three/examples/js/lights/RectAreaLightUniformsLib.js"></script>
     <script src="node_modules/three/examples/js/helpers/RectAreaLightHelper.js"></script>
+    <script src="node_modules/three/examples/js/controls/PointerLockControls.js"></script>
+    <script src="node_modules/three/examples/js/libs/dat.gui.min.js"></script>
     <title>Junho's Living Area</title>
 </head>
 <body>
     <div id="webgl-output"></div>
     <script>
+        var mixer;
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        
+        let raycaster;
+
+        let moveForward = false;
+        let moveBackward = false;
+        let moveLeft = false;
+        let moveRight = false;
+        let canJump = false;
+
         function main() {
 
 
@@ -37,9 +51,9 @@
         //------------Camera Orbit Control (with Mouse)-----------------//
 
             var controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.rotateSpeed = 1.0;
+            controls.rotateSpeed = 0.9;
             controls.zoomSpeed = 1.2;
-            controls.panSpeed = 0.8;
+            controls.panSpeed = 0.9;
             controls.minDistance = 5;
             controls.maxDistance = 100;
 
@@ -52,50 +66,40 @@
             }
 
 
-        //------------Camera Control (with KeyBoard)-----------------------//
+        //------------Camera Control with GUI -----------------------//
 
-            // function cameraPosition(event) {
-            //     requestAnimationFrame(cameraPosition);
+            class MinMaxGUIHelper {
+                constructor(obj, minProp, maxProp, minDif) {
+                    this.obj = obj;
+                    this.minProp = minProp;
+                    this.maxProp = maxProp;
+                    this.minDif = minDif;
+                }
+                get min() {
+                    return this.obj[this.minProp];
+                }
+                set min(v) {
+                    this.obj[this.minProp] = v;
+                    this.obj[this.maxProp] = Math.max(this.obj[this.maxProp], v + this.minDif);
+                }
+                get max() {
+                    return this.obj[this.maxProp];
+                }
+                set max(v) {
+                    this.obj[this.maxProp] = v;
+                    this.min = this.min;
+                }
+            }
 
-            //     if (event.keyCode == 40) {
-            //         camera.position.x += 1.0;
-            //     }
-            //     if (event.keyCode == 38) {
-            //         camera.position.x += -1.0;
-            //     }
-            //     if (event.keyCode == 37) {
-            //         camera.position.z += 1.0;
-            //     }
-            //     if (event.keyCode == 39) {
-            //         camera.position.z += -1.0;
-            //     }
-
-            //     renderer.render(scene, camera);
-            // }
-
-            // function cameraLookAt(event) {
-            //     requestAnimationFrame(cameraLookAt);
-
-            //     if (event.keyCode == 65) {
-            //         camera.rotation.y += THREE.Math.degToRad(4);
-            //     }
-            //     if (event.keyCode == 68) {
-            //         camera.rotation.y -= THREE.Math.degToRad(4);
-            //     }
-            //     if (event.keyCode == 87) {
-            //         camera.position.y += 1;
-            //     }
-            //     if (event.keyCode == 83) {
-            //         camera.position.y -= 1;
-            //     }
-
-            //     renderer.render(scene, camera);
-            // }
-
-
-            // document.addEventListener("keydown", cameraPosition, false);
-            // document.addEventListener("keydown", cameraLookAt, false);
-
+            function updateCamera() {
+                camera.updateProjectionMatrix();
+                }
+                
+            const gui = new dat.GUI();
+            gui.add(camera, 'fov', 1, 180).onChange(updateCamera);
+            const minMaxGUIHelper = new MinMaxGUIHelper(camera, 'near', 'far', 0.1);
+            gui.add(minMaxGUIHelper, 'min', 0.1, 50, 0.1).name('near').onChange(updateCamera);
+            gui.add(minMaxGUIHelper, 'max', 0.1, 200, 0.1).name('far').onChange(updateCamera);
 
         //------------Window Resizing-----------------------------//
 
@@ -137,7 +141,14 @@
             const floorWidth = 100
             const floorHeight = 100
             const floorGeometry = new THREE.PlaneGeometry(floorWidth, floorHeight);
-            const floorMaterial = new THREE.MeshLambertMaterial({color: 0xF3F781});
+            // const floorMaterial = new THREE.MeshLambertMaterial({color: 0xF3F781});
+
+            const floorTexture = new THREE.TextureLoader().load("marblefloor.jpg");
+            floorTexture.wrapS = THREE.RepeatWrapping;
+            floorTexture.wrapT = THREE.RepeatWrapping;
+            floorTexture.repeat.set(10, 10);
+            const floorMaterial = new THREE.MeshBasicMaterial({map:floorTexture});
+
             var floor = new THREE.Mesh(floorGeometry, floorMaterial);
             floor.rotation.x = Math.PI * -.5;
             floor.position.y = -10;
@@ -148,7 +159,13 @@
         
             const edgeGeometry1 = new THREE.PlaneGeometry(43, GlobalWallHeight);
             const edgeGeometry2 = new THREE.PlaneGeometry(60, GlobalWallHeight);
-            const edgeMaterial = new THREE.MeshLambertMaterial({color:0x81DAF5, side: 2});
+            // const edgeMaterial = new THREE.MeshLambertMaterial({color:0x81DAF5, side: 2});
+
+            const edgeTexture = new THREE.TextureLoader().load("whitebrickwall.jpg");
+            edgeTexture.wrapS = THREE.RepeatWrapping;
+            edgeTexture.wrapT = THREE.RepeatWrapping;
+            edgeTexture.repeat.set(4, 4);
+            const edgeMaterial = new THREE.MeshBasicMaterial({map:edgeTexture, side:2});
 
             var edge1 = new THREE.Mesh(edgeGeometry1, edgeMaterial);
             var edge2 = new THREE.Mesh(edgeGeometry2, edgeMaterial);
@@ -173,7 +190,12 @@
             const room1WallGeo1 = new THREE.BoxGeometry(40, GlobalWallHeight, 3);
             const room1WallGeo2 = new THREE.BoxGeometry(25, GlobalWallHeight, 3);
             const room1WallGeoEX = new THREE.BoxGeometry(15, 6, 3);
-            const room1WallMat = new THREE.MeshLambertMaterial({color: 0x58FAAC});
+            // const room1WallMat = new THREE.MeshLambertMaterial({color: 0x58FAAC});
+            const room1WallTexture = new THREE.TextureLoader().load("verticalwallpaper.jpg");
+            room1WallTexture.wrapS = THREE.RepeatWrapping;
+            room1WallTexture.wrapT = THREE.RepeatWrapping;
+            room1WallTexture.repeat.set(4, 4);
+            const room1WallMat = new THREE.MeshBasicMaterial({map:room1WallTexture});
 
             var room1Wall1 = new THREE.Mesh(room1WallGeo1, room1WallMat);
             room1Wall1.position.set(30, 2, 50);
@@ -207,7 +229,12 @@
         //--------------Room1 - Door----------------------------------//
 
             const doorGeo = new THREE.BoxGeometry(15, 28, 1.5);
-            const doorMat = new THREE.MeshPhongMaterial({color: 0x3ADF00});
+            // const doorMat = new THREE.MeshPhongMaterial({color: 0x3ADF00});
+            const doorTexture = new THREE.TextureLoader().load("door.jpg");
+            doorTexture.wrapS = THREE.RepeatWrapping;
+            doorTexture.wrapT = THREE.RepeatWrapping;
+            doorTexture.repeat.set(4, 4);
+            const doorMat = new THREE.MeshBasicMaterial({map:doorTexture});
             var room1Door = new THREE.Mesh(doorGeo, doorMat);
             room1Door.rotation.y = Math.PI / -2.8;
             room1Door.position.set(15, 4, 17);
@@ -272,7 +299,11 @@
             const deskGeo = new THREE.BoxGeometry(14, 2, 24);
             const deskLegGeo = new THREE.BoxGeometry(2, 14, 2);
             const deskDrawerGeo = new THREE.BoxGeometry(14, 14, 6);
-            const deskMat = new THREE.MeshPhongMaterial({color:0x868A08});
+            const deskTexture = new THREE.TextureLoader().load("desk.jpg");
+            deskTexture.wrapS = THREE.RepeatWrapping;
+            deskTexture.wrapT = THREE.RepeatWrapping;
+            deskTexture.repeat.set(1, 1);
+            const deskMat = new THREE.MeshPhongMaterial({color:0x868A08, map:deskTexture});
             var desk = new THREE.Mesh(deskGeo, deskMat);
             var deskLeg1 = new THREE.Mesh(deskLegGeo, deskMat);
             var deskLeg2 = new THREE.Mesh(deskLegGeo, deskMat);
@@ -337,7 +368,13 @@
             const room2WallGeo3 = new THREE.BoxGeometry(30, GlobalWallHeight, 3);
             const room2WallGeo4 = new THREE.BoxGeometry(10, GlobalWallHeight, 3);
             const room2WallGeoEX = new THREE.BoxGeometry(25, 6, 3);
-            const room2WallMat = new THREE.MeshLambertMaterial({color:0xF6CECE});
+            // const room2WallMat = new THREE.MeshLambertMaterial({color:0xF6CECE});
+            const room2Texture = new THREE.TextureLoader().load("verticalwallpaper.jpg");
+            room2Texture.wrapS = THREE.RepeatWrapping;
+            room2Texture.wrapT = THREE.RepeatWrapping;
+            room2Texture.repeat.set(10, 10);
+            const room2WallMat = new THREE.MeshBasicMaterial({map:room2Texture});
+
 
             var room2Wall1 = new THREE.Mesh(room2WallGeo1, room2WallMat);
             var room2Wall2 = new THREE.Mesh(room2WallGeo2, room2WallMat);
@@ -415,12 +452,12 @@
         
 
             const carpetGeo = new THREE.PlaneGeometry(30, 30);
-            const carpetMat = new THREE.MeshBasicMaterial({color:0xAAFF00});
-            // const carpetTexture = new THREE.TextureLoader().load("carpetTexture.jpg");
-            // carpetTexture.wrapS = THREE.RepeatWrapping;
-            // carpetTexture.wrapT = THREE.RepeatWrapping;
-            // carpetTexture.repeat.set(4, 4);
-            // const carpetMat = new THREE.MeshBasicMaterial({map:carpetTexture});
+            // const carpetMat = new THREE.MeshBasicMaterial({color:0xAAFF00});
+            const carpetTexture = new THREE.TextureLoader().load("carpetTexture.jpg");
+            carpetTexture.wrapS = THREE.RepeatWrapping;
+            carpetTexture.wrapT = THREE.RepeatWrapping;
+            carpetTexture.repeat.set(4, 4);
+            const carpetMat = new THREE.MeshBasicMaterial({map:carpetTexture});
             var carpet = new THREE.Mesh(carpetGeo, carpetMat);
             carpet.position.set(25, -9.9, -30);
             carpet.rotation.x = Math.PI * -.5;
@@ -527,8 +564,15 @@
         // ------------- living room - coffee table ---------------
 
             const coffeeTableGeo = new THREE.BoxGeometry(20, 2, 8);
-            const coffeeTableMat = new THREE.MeshPhongMaterial({color : 0xF2F2F2});
-            var coffeeTable = new THREE.Mesh(coffeeTableGeo, coffeeTableMat);
+            // const coffeeTableMat = new THREE.MeshPhongMaterial({color : 0xF2F2F2});
+
+            const coffeetableTexture = new THREE.TextureLoader().load("coffeetable.jpg");
+            coffeetableTexture.wrapS = THREE.RepeatWrapping;
+            coffeetableTexture.wrapT = THREE.RepeatWrapping;
+            coffeetableTexture.repeat.set(1, 1);
+            const coffeetableMat = new THREE.MeshBasicMaterial({map:coffeetableTexture});
+
+            var coffeeTable = new THREE.Mesh(coffeeTableGeo, coffeetableMat);
             coffeeTable.position.set(27, -6, -30);
             coffeeTable.rotation.y = Math.PI / 2;
 
@@ -544,8 +588,14 @@
             const laptopTopGeo = new THREE.BoxGeometry(6, 0.5, 5);
             const laptopBotGeo = new THREE.BoxGeometry(6, 0.4, 5);
             const laptopMat = new THREE.MeshPhongMaterial({color:0x424242});
+            const keyboardTexture = new THREE.TextureLoader().load("laptopkeyboard.jpg");
+            keyboardTexture.wrapS = THREE.RepeatWrapping;
+            keyboardTexture.wrapT = THREE.RepeatWrapping;
+            keyboardTexture.repeat.set(1, 1);
+            const keyboardMat = new THREE.MeshBasicMaterial({map:keyboardTexture});
+            
             var laptopTop = new THREE.Mesh(laptopTopGeo, laptopMat);
-            var laptopBot = new THREE.Mesh(laptopBotGeo, laptopMat);
+            var laptopBot = new THREE.Mesh(laptopBotGeo, keyboardMat);
 
             laptop.position.y = 1.3;
             laptopTop.rotation.x = Math.PI * 1.4;
@@ -610,8 +660,18 @@
             const treeGeo3 = new THREE.ConeGeometry(6, 7, 10);
             const treeGeo4 = new THREE.CylinderGeometry(1, 2, 7, 15);
             const treeGeo5 = new THREE.CylinderGeometry(5, 5, 1, 30);
-            const treeMat1 = new THREE.MeshPhongMaterial({color:0x088A68});
-            const treeMat2 = new THREE.MeshPhongMaterial({color:0x8A0808});
+            // const treeMat1 = new THREE.MeshPhongMaterial({color:0x088A68});
+            const treeTexture = new THREE.TextureLoader().load("christmastreeleaf.jpg");
+            treeTexture.wrapS = THREE.RepeatWrapping;
+            treeTexture.wrapT = THREE.RepeatWrapping;
+            treeTexture.repeat.set(6, 6);
+            const treeMat1 = new THREE.MeshBasicMaterial({map:treeTexture});
+            // const treeMat2 = new THREE.MeshPhongMaterial({color:0x8A0808});
+            const treeTexture2 = new THREE.TextureLoader().load("treebelow.jpg");
+            treeTexture2.wrapS = THREE.RepeatWrapping;
+            treeTexture2.wrapT = THREE.RepeatWrapping;
+            treeTexture2.repeat.set(6, 6);
+            const treeMat2 = new THREE.MeshBasicMaterial({map:treeTexture2});
             var tree1 = new THREE.Mesh(treeGeo1, treeMat1);
             var tree2 = new THREE.Mesh(treeGeo2, treeMat1);
             var tree3 = new THREE.Mesh(treeGeo3, treeMat1);
@@ -671,12 +731,23 @@
         // ------------------- living Room - Living Room - edge - wallLight ---------------------------
 
             const wallLightGeo = new THREE.BoxGeometry(7, 4, 1);
-            const wallLightMat = new THREE.MeshPhongMaterial({color:0x0000FF});
+            // const wallLightMat = new THREE.MeshPhongMaterial({color:0x0000FF});
+            const wallLightTexture = new THREE.TextureLoader().load("blulight.jpg");
+            wallLightTexture.wrapS = THREE.RepeatWrapping;
+            wallLightTexture.wrapT = THREE.RepeatWrapping;
+            wallLightTexture.repeat.set(1, 1);
+            const wallLightMat = new THREE.MeshBasicMaterial({map:wallLightTexture});
+
             var wallLight = new THREE.Mesh(wallLightGeo, wallLightMat);
             wallLight.position.set(8, 10, -0.51);
 
             const wallLightEdgeGeo = new THREE.BoxGeometry(2, 4.4, 1.5);
-            const wallLightEdgeMat = new THREE.MeshPhongMaterial({color:0xFAAC58});
+            // const wallLightEdgeMat = new THREE.MeshPhongMaterial({color:0xFAAC58});
+            const wallLightEdgeTexture = new THREE.TextureLoader().load("yellowLighty.jpg");
+            wallLightEdgeTexture.wrapS = THREE.RepeatWrapping;
+            wallLightEdgeTexture.wrapT = THREE.RepeatWrapping;
+            wallLightEdgeTexture.repeat.set(1, 1);
+            const wallLightEdgeMat = new THREE.MeshBasicMaterial({map:wallLightEdgeTexture});
             var wallLightEdge1 = new THREE.Mesh(wallLightEdgeGeo, wallLightEdgeMat);
             var wallLightEdge2 = new THREE.Mesh(wallLightEdgeGeo, wallLightEdgeMat);
             wallLight.add(wallLightEdge1);
@@ -705,32 +776,48 @@
         // ----------------------------------- Sun -----------------------------------------
 
             const sunGeo = new THREE.SphereGeometry(10, 30);
-            const sunMat = new THREE.MeshToonMaterial({color:0xFFFFFF, emissive:0xFFFF00, emissiveIntensity:10});
+            const sunTexture = new THREE.TextureLoader().load("moon.jpg");
+            sunTexture.wrapS = THREE.RepeatWrapping;
+            sunTexture.wrapT = THREE.RepeatWrapping;
+            sunTexture.repeat.set(1, 1);
+            const sunMat = new THREE.MeshToonMaterial({color:0xFFFFFF, emissive:0xFFFF00, emissiveIntensity:10, map:sunTexture});
             var sun = new THREE.Mesh(sunGeo, sunMat);
 
             const r = 100;
-            sun.position.set(0, r, 0);
 
+            sun.position.set(0, r, 0);
             scene.add(sun);
-            
+            // sun.position.set(0, r, 0);
+
+            // var center = new THREE.Group();
+            // center.position.set(0, 0, 0);
+            // center.add(sun);
+
             // function sunAnimation() {
             //     requestAnimationFrame(sunAnimation);
-            //     sun.position.y -= r * Math.sin(Math.PI * 0.05);
-            //     sun.position.z -= r * Math.cos(Math.PI * 0.05);
+                
+            //     center.rotation.x += 0.02;
 
             //     renderer.render(scene, camera);
             // }
 
             // sunAnimation();
 
+
+            
+
         
         // ---------------------------------- Moon -------------------------------------------
 
             const moonGeo = new THREE.SphereGeometry(5, 30);
-            const moonMat = new THREE.MeshPhongMaterial({color:0xBDBDBD, shininess:10});
+            const moonTexture = new THREE.TextureLoader().load("moon.jpg");
+            moonTexture.wrapS = THREE.RepeatWrapping;
+            moonTexture.wrapT = THREE.RepeatWrapping;
+            moonTexture.repeat.set(1, 1);
+            const moonMat = new THREE.MeshPhongMaterial({color:0xBDBDBD, shininess:10, map:moonTexture});
             var moon = new THREE.Mesh(moonGeo, moonMat);
 
-            moon.position.set(0, -r + 70, 0);
+            moon.position.set(0, -r + 40, 0);
 
             scene.add(moon);        // temporarily positioning near the room.
 
@@ -761,6 +848,7 @@
             // directionalAnimation();
 
         // --------------------------- 
+
 
         }   
 
